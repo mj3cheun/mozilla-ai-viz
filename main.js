@@ -105,6 +105,8 @@ let windowHalfY = window.innerHeight / 2;
 const BOUNDS = 800
 const BOUNDS_HALF = BOUNDS / 2;
 
+const BOX_WIDTH = 200;
+
 let last = performance.now();
 
 let gpuCompute;
@@ -147,6 +149,7 @@ function init() {
 	window.addEventListener( 'resize', onWindowResize );
 
 	initBirds();
+	initBox();
 
 }
 
@@ -184,6 +187,7 @@ function initComputeRenderer() {
 	velocityUniforms[ 'time' ] = { value: 1.0 };
 	velocityUniforms[ 'delta' ] = { value: 0.0 };
 	velocityUniforms[ 'predator' ] = { value: new THREE.Vector3() };
+	velocityUniforms[ "boxWidth" ] = { value: 200.0 };
 	velocityVariable.material.defines.BOUNDS = BOUNDS.toFixed( 2 );
 
 	velocityVariable.wrapS = THREE.RepeatWrapping;
@@ -227,7 +231,15 @@ function initBirds() {
 	birdMesh.updateMatrix();
 
 	scene.add( birdMesh );
+}
 
+function initBox() {
+	const geometry = new THREE.BoxGeometry( BOX_WIDTH, BOX_WIDTH, BOX_WIDTH );
+    const edgesGeometry = new THREE.EdgesGeometry( geometry );
+    const material = new THREE.LineBasicMaterial();
+
+	const edgeMesh = new THREE.LineSegments( edgesGeometry, material );
+    scene.add( edgeMesh );
 }
 
 function fillPositionTexture( texture ) {

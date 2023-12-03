@@ -64,6 +64,7 @@
 			uniform float cohesionDistance; //
 			uniform float freedomFactor;
 			uniform vec3 predator;
+			uniform float boxWidth;
 
 			const float width = resolution.x;
 			const float height = resolution.y;
@@ -201,11 +202,31 @@
 
 
 				// this make tends to fly around than down or up
-				// if (velocity.y > 0.) velocity.y *= (1. - 0.2 * delta);
+				if (velocity.y > 0.) velocity.y *= (1. - 0.2 * delta);
 
 				// Speed Limits
 				if ( length( velocity ) > limit ) {
 					velocity = normalize( velocity ) * limit;
+				}
+
+				// if bird is going to leave bound this tick reverse the vector
+				float bound = 100.0;
+				vec3 predictedPosition = selfPosition + velocity * delta * 15.;
+				if(
+					selfPosition.x < bound
+						&& selfPosition.x > -bound
+						&& selfPosition.y < bound
+						&& selfPosition.y > -bound
+						&& selfPosition.z < bound
+						&& selfPosition.z > -bound
+						&& (predictedPosition.x > bound
+							|| predictedPosition.x < -bound
+							|| predictedPosition.y > bound
+							|| predictedPosition.y < -bound
+							|| predictedPosition.z > bound
+							|| predictedPosition.z < -bound)
+				) {
+					velocity = -velocity;
 				}
 
 				gl_FragColor = vec4( velocity, 1.0 );
