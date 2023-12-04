@@ -124,8 +124,14 @@ function init() {
 	container = document.createElement( 'div' );
 	document.body.appendChild( container );
 
+	// set camera to look down on a vertex of the cube
+	const cameraDistance = 200;
 	camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 3000 );
-	camera.position.z = 350;
+	camera.translateX(cameraDistance);
+	camera.translateY(cameraDistance);
+	camera.translateZ(cameraDistance);
+	camera.rotateY(Math.PI / 4);
+	camera.rotateX(-Math.PI / 4);
 
 	scene = new THREE.Scene();
 	scene.background = new THREE.Color( 0x111111 );
