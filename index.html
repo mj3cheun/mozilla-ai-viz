@@ -218,16 +218,19 @@
 					&& selfPosition.y > -bound
 					&& selfPosition.z < bound
 					&& selfPosition.z > -bound;
+				float buffer = 0.5;
 				if(isInCube) {
-					if ( nextPosition.x > bound || nextPosition.x < -bound ) {
+					if ( nextPosition.x > bound - buffer || nextPosition.x < - bound + buffer ) {
 						velocity = vec3(-velocity.x, velocity.y, velocity.z);
 					}
-					if ( nextPosition.y > bound || nextPosition.y < -bound ) {
+					if ( nextPosition.y > bound - buffer || nextPosition.y < - bound + buffer ) {
 						velocity = vec3(velocity.x, -velocity.y, velocity.z);
 					}
-					if ( nextPosition.z > bound || nextPosition.z < -bound ) {
+					if ( nextPosition.z > bound - buffer || nextPosition.z < - bound + buffer ) {
 						velocity = vec3(velocity.x, velocity.y, -velocity.z);
 					}
+				} else {
+					velocity = -selfPosition;
 				}
 
 				gl_FragColor = vec4( velocity, 1.0 );
