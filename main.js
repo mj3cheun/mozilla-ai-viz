@@ -137,7 +137,7 @@ function init() {
 	scene.background = new THREE.Color( 0x111111 );
 	scene.fog = new THREE.Fog( 0xffffff, 100, 1000 );
 
-	renderer = new THREE.WebGLRenderer();
+	renderer = new THREE.WebGLRenderer({ antialias: true });
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	container.appendChild( renderer.domElement );
