@@ -125,7 +125,7 @@ function init() {
 	document.body.appendChild( container );
 
 	// set camera to look down on a vertex of the cube
-	const cameraDistance = 200;
+	const cameraDistance = 150;
 	camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 3000 );
 	camera.translateX(cameraDistance);
 	camera.translateY(cameraDistance);
@@ -155,7 +155,7 @@ function init() {
 	window.addEventListener( 'resize', onWindowResize );
 
 	initBirds();
-	initBox();
+	// initBox();
 
 }
 
