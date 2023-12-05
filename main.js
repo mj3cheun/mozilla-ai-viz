@@ -254,13 +254,13 @@ function fillPositionTexture( texture ) {
 
 	for ( let k = 0, kl = theArray.length; k < kl; k += 4 ) {
 
-		const x = Math.random() * (BOUNDS / 1) - (BOUNDS / 2);
-		const y = Math.random() * (BOUNDS / 1) - (BOUNDS / 2);
-		const z = Math.random() * (BOUNDS / 1) - (BOUNDS / 2);
+		// const x = Math.random() * (BOUNDS / 1) - (BOUNDS / 2);
+		// const y = Math.random() * (BOUNDS / 1) - (BOUNDS / 2);
+		// const z = Math.random() * (BOUNDS / 1) - (BOUNDS / 2);
 
-		theArray[ k + 0 ] = x;
-		theArray[ k + 1 ] = y;
-		theArray[ k + 2 ] = z;
+		theArray[ k + 0 ] = 1; // x
+		theArray[ k + 1 ] = 1; // y
+		theArray[ k + 2 ] = 1; // z
 		theArray[ k + 3 ] = 1;
 
 	}
