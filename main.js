@@ -323,29 +323,32 @@ function render() {
 	const now = performance.now();
 	let delta = ( now - last ) / 1000;
 
-	if ( delta > 1 ) delta = 1; // safety cap on large deltas
+	const deltaCap = 0.5;
+	if ( delta > deltaCap ) delta = deltaCap; // safety cap on large deltas
 	last = now;
 
-	positionUniforms[ 'time' ].value = now;
-	positionUniforms[ 'delta' ].value = delta;
-	velocityUniforms[ 'time' ].value = now;
-	velocityUniforms[ 'delta' ].value = delta;
-	birdUniforms[ 'time' ].value = now;
-	birdUniforms[ 'delta' ].value = delta;
-
-	velocityUniforms[ 'predator' ].value.set( 0.5 * mouseX / windowHalfX, - 0.5 * mouseY / windowHalfY, 0 );
-
-	mouseX = 10000;
-	mouseY = 10000;
-
-	gpuCompute.compute();
-
-	birdUniforms[ 'texturePosition' ].value = gpuCompute.getCurrentRenderTarget( positionVariable ).texture;
-	birdUniforms[ 'textureVelocity' ].value = gpuCompute.getCurrentRenderTarget( velocityVariable ).texture;
-
-	// birdUniforms[ 'texturePosition' ].value = window.dtPosition;
-	// birdUniforms[ 'textureVelocity' ].value = window.dtVelocity;
-
-	renderer.render( scene, camera );
-
+	// stop animation when tabbed out
+	if (document.hasFocus()) {
+		positionUniforms[ 'time' ].value = now;
+		positionUniforms[ 'delta' ].value = delta;
+		velocityUniforms[ 'time' ].value = now;
+		velocityUniforms[ 'delta' ].value = delta;
+		birdUniforms[ 'time' ].value = now;
+		birdUniforms[ 'delta' ].value = delta;
+	
+		velocityUniforms[ 'predator' ].value.set( 0.5 * mouseX / windowHalfX, - 0.5 * mouseY / windowHalfY, 0 );
+	
+		mouseX = 10000;
+		mouseY = 10000;
+	
+		gpuCompute.compute();
+	
+		birdUniforms[ 'texturePosition' ].value = gpuCompute.getCurrentRenderTarget( positionVariable ).texture;
+		birdUniforms[ 'textureVelocity' ].value = gpuCompute.getCurrentRenderTarget( velocityVariable ).texture;
+	
+		// birdUniforms[ 'texturePosition' ].value = window.dtPosition;
+		// birdUniforms[ 'textureVelocity' ].value = window.dtVelocity;
+	
+		renderer.render( scene, camera );
+	};
 }
