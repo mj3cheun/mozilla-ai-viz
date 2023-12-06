@@ -6,7 +6,7 @@ import Stats from 'three/addons/libs/stats.module.js';
 import { GPUComputationRenderer } from 'three/addons/misc/GPUComputationRenderer.js';
 
 /* TEXTURE WIDTH FOR SIMULATION */
-const WIDTH = 64;
+const WIDTH = 128;
 
 const MAX_POINTS = WIDTH * WIDTH;
 
@@ -71,7 +71,7 @@ class ParticleGeometry extends THREE.BufferGeometry {
 			// 	0x666666 +
 			// 	~ ~ ( i / 9 ) / MAX_POINTS * 0x666666
 			// );
-			const c = new THREE.Color('red');
+			const c = new THREE.Color('#666666');
 
 			colors.array[ i * 3 + 0 ] = c.r;
 			colors.array[ i * 3 + 1 ] = c.g;
@@ -228,7 +228,8 @@ function initBirds() {
 		uniforms: birdUniforms,
 		vertexShader: document.getElementById( 'birdVS' ).textContent,
 		fragmentShader: document.getElementById( 'birdFS' ).textContent,
-		side: THREE.DoubleSide
+		side: THREE.DoubleSide,
+		blending: THREE.AdditiveBlending
 	} );
 
 	const birdMesh = new THREE.Mesh( geometry, material );
