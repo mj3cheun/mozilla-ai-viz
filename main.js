@@ -1,7 +1,4 @@
-
 import * as THREE from 'three';
-
-import Stats from 'three/addons/libs/stats.module.js';
 
 import { GPUComputationRenderer } from 'three/addons/misc/GPUComputationRenderer.js';
 
@@ -122,7 +119,7 @@ animate();
 function init() {
 
 	container = document.createElement( 'div' );
-	document.body.appendChild( container );
+	document.getElementById('animation-container').appendChild( container );
 
 	// set camera to look down on a vertex of the cube
 	const cameraDistance = 150;
@@ -144,8 +141,8 @@ function init() {
 
 	initComputeRenderer();
 
-	stats = new Stats();
-	container.appendChild( stats.dom );
+	// stats = new Stats();
+	// container.appendChild( stats.dom );
 
 	container.style.touchAction = 'none';
 	container.addEventListener( 'pointermove', onPointerMove );
@@ -255,13 +252,13 @@ function fillPositionTexture( texture ) {
 
 	for ( let k = 0, kl = theArray.length; k < kl; k += 4 ) {
 
-		// const x = Math.random() * (BOUNDS / 1) - (BOUNDS / 2);
-		// const y = Math.random() * (BOUNDS / 1) - (BOUNDS / 2);
-		// const z = Math.random() * (BOUNDS / 1) - (BOUNDS / 2);
+		const x = Math.random() * (BOX_WIDTH / 1) - (BOX_WIDTH / 2);
+		const y = Math.random() * (BOX_WIDTH / 1) - (BOX_WIDTH / 2);
+		const z = Math.random() * (BOX_WIDTH / 1) - (BOX_WIDTH / 2);
 
-		theArray[ k + 0 ] = 1; // x
-		theArray[ k + 1 ] = 1; // y
-		theArray[ k + 2 ] = 1; // z
+		theArray[ k + 0 ] = x;
+		theArray[ k + 1 ] = y;
+		theArray[ k + 2 ] = z;
 		theArray[ k + 3 ] = 1;
 
 	}
@@ -315,7 +312,7 @@ function animate() {
 	requestAnimationFrame( animate );
 
 	render();
-	stats.update();
+	// stats.update();
 
 }
 
