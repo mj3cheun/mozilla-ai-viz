@@ -8,7 +8,7 @@ const WIDTH = 128;
 const MAX_POINTS = WIDTH * WIDTH;
 
 // Custom Geometry - using 3 triangles each. No UVs, no normals currently.
-class ParticleGeometry extends THREE.BufferGeometry {
+class ParticleGeometry extends THREE.InstancedBufferGeometry {
 
 	constructor() {
 
@@ -18,9 +18,9 @@ class ParticleGeometry extends THREE.BufferGeometry {
 		const triangles = MAX_POINTS * trianglesPerParticle;
 		const points = triangles * 3;
 
-		const vertices = new THREE.BufferAttribute( new Float32Array( points * 3 ), 3 );
-		const references = new THREE.BufferAttribute( new Float32Array( points * 2 ), 2 );
-		const colors = new THREE.BufferAttribute( new Float32Array( points * 3 ), 3 );
+		const vertices = new THREE.BufferAttribute( new Float32Array( trianglesPerParticle * 3 * 3 ), 3 );
+		const references = new THREE.InstancedBufferAttribute( new Float32Array( points * 2 ), 2 );
+		const colors = new THREE.InstancedBufferAttribute( new Float32Array( points * 3 ), 3 );
 		// const sizes = new THREE.BufferAttribute( new Float32Array( points * 1 ), 1);
 
 		this.setAttribute( 'position', vertices );
@@ -42,16 +42,13 @@ class ParticleGeometry extends THREE.BufferGeometry {
 
 		}
 
-		for (let i = 0; i < MAX_POINTS; i++) {
-			// equilateral triangle with sides of length 10 
-			verts_push(
-				...[
-					0, -1, 0,
-					0, 1, 0,
-					0, 0, 10,
-				].map(x => x)
-			);
-		}
+		verts_push(
+			...[
+				0, -1, 0,
+				0, 1, 0,
+				0, 0, 1,
+			]
+		);
 
 		for ( let i = 0; i < MAX_POINTS * 3; i ++ ) {
 
@@ -68,7 +65,7 @@ class ParticleGeometry extends THREE.BufferGeometry {
 			// 	0x666666 +
 			// 	~ ~ ( i / 9 ) / MAX_POINTS * 0x666666
 			// );
-			const c = new THREE.Color('#666666');
+			const c = new THREE.Color('#AAAAAA');
 
 			colors.array[ i * 3 + 0 ] = c.r;
 			colors.array[ i * 3 + 1 ] = c.g;
@@ -78,7 +75,7 @@ class ParticleGeometry extends THREE.BufferGeometry {
 
 		}
 
-		this.scale( ...(new Array(3).fill(1)) );
+		this.scale( ...(new Array(3).fill(0.3)) );
 
 		// console.log('huhuhu');
 		// console.log(vertices.array);
