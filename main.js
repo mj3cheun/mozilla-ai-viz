@@ -50,6 +50,7 @@ class ParticleGeometry extends THREE.InstancedBufferGeometry {
 			]
 		);
 
+		const c = new THREE.Color('#AAAAAA');
 		for ( let i = 0; i < MAX_POINTS * 3; i ++ ) {
 
 			const triangleIndex = ~ ~ ( i / 3 );
@@ -65,7 +66,6 @@ class ParticleGeometry extends THREE.InstancedBufferGeometry {
 			// 	0x666666 +
 			// 	~ ~ ( i / 9 ) / MAX_POINTS * 0x666666
 			// );
-			const c = new THREE.Color('#AAAAAA');
 
 			colors.array[ i * 3 + 0 ] = c.r;
 			colors.array[ i * 3 + 1 ] = c.g;
