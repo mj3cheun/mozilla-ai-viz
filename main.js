@@ -128,7 +128,7 @@ function init() {
 	camera.translateY(cameraDistance);
 	camera.translateZ(cameraDistance);
 	camera.rotateY(Math.PI / 4);
-	camera.rotateX(-Math.PI / 4);
+	camera.rotateX(-Math.PI / 4.5);
 
 	scene = new THREE.Scene();
 	scene.background = new THREE.Color( 0x111111 );
