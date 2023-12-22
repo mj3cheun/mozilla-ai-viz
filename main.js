@@ -243,6 +243,10 @@ function initBox() {
     scene.add( edgeMesh );
 }
 
+function partialRand() {
+	return Math.random() < 0.3 ? Math.random() : 0.5;
+}
+
 function fillPositionTexture( texture ) {
 
 	const theArray = texture.image.data;
@@ -250,7 +254,7 @@ function fillPositionTexture( texture ) {
 	for ( let k = 0, kl = theArray.length; k < kl; k += 4 ) {
 
 		const x = Math.random() * (BOX_WIDTH / 1) - (BOX_WIDTH / 2);
-		const y = Math.random() * (BOX_WIDTH / 1) - (BOX_WIDTH / 2);
+		const y = partialRand() * (BOX_WIDTH / 1) - (BOX_WIDTH / 2);
 		const z = Math.random() * (BOX_WIDTH / 1) - (BOX_WIDTH / 2);
 
 		theArray[ k + 0 ] = x;
@@ -269,7 +273,7 @@ function fillVelocityTexture( texture ) {
 	for ( let k = 0, kl = theArray.length; k < kl; k += 4 ) {
 
 		const x = Math.random() - 0.5;
-		const y = Math.random() - 0.5;
+		const y = partialRand() - 0.5;
 		const z = Math.random() - 0.5;
 
 		theArray[ k + 0 ] = x * 10;
