@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { GPUComputationRenderer } from 'three/addons/misc/GPUComputationRenderer.js';
 
 /* TEXTURE WIDTH FOR SIMULATION */
-const WIDTH = 128;
+const WIDTH = 1024;
 
 const MAX_POINTS = WIDTH * WIDTH;
 
@@ -50,7 +50,7 @@ class ParticleGeometry extends THREE.InstancedBufferGeometry {
 			]
 		);
 
-		const c = new THREE.Color('#AAAAAA');
+		const c = new THREE.Color('#555555');
 		for ( let i = 0; i < MAX_POINTS * 3; i ++ ) {
 
 			const triangleIndex = ~ ~ ( i / 3 );
@@ -131,7 +131,7 @@ function init() {
 	scene.background = new THREE.Color( 0x111111 );
 	scene.fog = new THREE.Fog( 0xffffff, 100, 1000 );
 
-	renderer = new THREE.WebGLRenderer({ antialias: true });
+	renderer = new THREE.WebGLRenderer({ powerPreference: "high-performance" });
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	container.appendChild( renderer.domElement );
@@ -149,7 +149,7 @@ function init() {
 	window.addEventListener( 'resize', onWindowResize );
 
 	initBirds();
-	// initBox();
+	initBox();
 
 }
 
@@ -237,7 +237,7 @@ function initBirds() {
 function initBox() {
 	const geometry = new THREE.BoxGeometry( BOX_WIDTH, BOX_WIDTH, BOX_WIDTH );
     const edgesGeometry = new THREE.EdgesGeometry( geometry );
-    const material = new THREE.LineBasicMaterial();
+    const material = new THREE.LineBasicMaterial({ opacity: 0.1, transparent: true });
 
 	const edgeMesh = new THREE.LineSegments( edgesGeometry, material );
     scene.add( edgeMesh );
