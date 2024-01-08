@@ -115,8 +115,7 @@ animate();
 
 function init() {
 
-	container = document.createElement( 'div' );
-	document.getElementById('animation-container').appendChild( container );
+	container = document.getElementById('animation-container');
 
 	// set camera to look down on a vertex of the cube
 	const cameraDistance = 150;
@@ -141,8 +140,8 @@ function init() {
 	// stats = new Stats();
 	// container.appendChild( stats.dom );
 
-	container.style.touchAction = 'none';
-	container.addEventListener( 'pointermove', onPointerMove );
+	// container.style.touchAction = 'none';
+	window.addEventListener( 'pointermove', onPointerMove );
 
 	//
 
