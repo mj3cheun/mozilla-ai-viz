@@ -236,7 +236,7 @@ function initBirds() {
 function initBox() {
 	const geometry = new THREE.BoxGeometry( BOX_WIDTH, BOX_WIDTH, BOX_WIDTH );
     const edgesGeometry = new THREE.EdgesGeometry( geometry );
-    const material = new THREE.LineBasicMaterial({ opacity: 0.1, transparent: true });
+    const material = new THREE.LineBasicMaterial({ opacity: 0.6, transparent: true });
 
 	const edgeMesh = new THREE.LineSegments( edgesGeometry, material );
     scene.add( edgeMesh );
