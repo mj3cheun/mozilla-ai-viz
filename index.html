@@ -36,7 +36,7 @@
 					length( velocity.xz ) * delta * 3. +
 					max( velocity.y, 0.0 ) * delta * 6. ), 62.83 );
 
-				gl_FragColor = vec4( position + velocity * delta * 15. , phase );
+				gl_FragColor = vec4( position + velocity * delta * 7.5 , phase );
 
 			}
 
@@ -201,7 +201,7 @@
 
 				// if particle is going to leave cube bounds this tick bounce particle off bound
 				float bound = boxWidth * 0.5;
-				vec3 nextPosition = selfPosition + velocity * delta * 15.;
+				vec3 nextPosition = selfPosition + velocity * delta * 7.5;
 				bool isInCube = selfPosition.x < bound
 					&& selfPosition.x > -bound
 					&& selfPosition.y < bound
