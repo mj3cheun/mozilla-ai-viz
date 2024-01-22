@@ -1,11 +1,10 @@
 import * as THREE from 'three';
+import { getGPUTier } from 'detect-gpu';
 
 import { GPUComputationRenderer } from 'three/addons/misc/GPUComputationRenderer.js';
 
 /* TEXTURE WIDTH FOR SIMULATION */
-const WIDTH = 1024;
-
-const MAX_POINTS = WIDTH * WIDTH;
+let WIDTH = 1024;
 
 // Custom Geometry - using 3 triangles each. No UVs, no normals currently.
 class ParticleGeometry extends THREE.InstancedBufferGeometry {
@@ -15,7 +14,7 @@ class ParticleGeometry extends THREE.InstancedBufferGeometry {
 		super();
 
 		const trianglesPerParticle = 1;
-		const triangles = MAX_POINTS * trianglesPerParticle;
+		const triangles = WIDTH * WIDTH * trianglesPerParticle;
 		const points = triangles * 3;
 
 		const vertices = new THREE.BufferAttribute( new Float32Array( trianglesPerParticle * 3 * 3 ), 3 );
@@ -51,6 +50,7 @@ class ParticleGeometry extends THREE.InstancedBufferGeometry {
 		);
 
 		const c = new THREE.Color('#555555');
+		const MAX_POINTS = WIDTH * WIDTH;
 		for ( let i = 0; i < MAX_POINTS * 3; i ++ ) {
 
 			const triangleIndex = ~ ~ ( i / 3 );
@@ -111,10 +111,9 @@ let velocityUniforms;
 let birdUniforms;
 
 init();
-animate();
 
-function init() {
-
+async function init() {
+	const gpuTier = getGPUTier();
 	container = document.getElementById('animation-container');
 
 	// set camera to look down on a vertex of the cube
@@ -135,6 +134,12 @@ function init() {
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	container.appendChild( renderer.domElement );
 
+	// degrade number of particles based on detected GPU capabilities
+	const { tier } = await gpuTier;
+	if(tier < 3) {
+		WIDTH = 512;
+	}
+
 	initComputeRenderer();
 
 	// stats = new Stats();
@@ -142,14 +147,11 @@ function init() {
 
 	// container.style.touchAction = 'none';
 	window.addEventListener( 'pointermove', onPointerMove );
-
-	//
-
 	window.addEventListener( 'resize', onWindowResize );
 
 	initBirds();
 	initBox();
-
+	animate();
 }
 
 function initComputeRenderer() {
