@@ -4,17 +4,17 @@ import { getGPUTier } from 'detect-gpu';
 import { GPUComputationRenderer } from 'three/addons/misc/GPUComputationRenderer.js';
 
 /* TEXTURE WIDTH FOR SIMULATION */
-let WIDTH = 1024;
+const PARTICLE_MAX_WIDTH = 1024;
 
 // Custom Geometry - using 3 triangles each. No UVs, no normals currently.
 class ParticleGeometry extends THREE.InstancedBufferGeometry {
 
-	constructor() {
+	constructor(width) {
 
 		super();
 
 		const trianglesPerParticle = 1;
-		const triangles = WIDTH * WIDTH * trianglesPerParticle;
+		const triangles = width * width * trianglesPerParticle;
 		const points = triangles * 3;
 
 		const vertices = new THREE.BufferAttribute( new Float32Array( trianglesPerParticle * 3 * 3 ), 3 );
@@ -50,14 +50,14 @@ class ParticleGeometry extends THREE.InstancedBufferGeometry {
 		);
 
 		const c = new THREE.Color('#555555');
-		const MAX_POINTS = WIDTH * WIDTH;
+		const MAX_POINTS = width * width;
 		for ( let i = 0; i < MAX_POINTS * 3; i ++ ) {
 
 			const triangleIndex = ~ ~ ( i / 3 );
 			const pointIndex = ~ ~ ( triangleIndex );
 
-			const xNormalized = ( pointIndex % WIDTH ) / WIDTH;
-			const yNormalized = ~ ~ ( pointIndex / WIDTH ) / WIDTH;
+			const xNormalized = ( pointIndex % width ) / width;
+			const yNormalized = ~ ~ ( pointIndex / width ) / width;
 
 			references.array[ i * 2 ] = xNormalized;
 			references.array[ i * 2 + 1 ] = yNormalized;
@@ -97,11 +97,13 @@ let windowHalfX = window.innerWidth / 2;
 let windowHalfY = window.innerHeight / 2;
 
 const BOUNDS = 800
-const BOUNDS_HALF = BOUNDS / 2;
 
 const BOX_WIDTH = 200;
 
+let particleTexWidth = 128;
 let last = performance.now();
+let forceAnimationActive = false;
+let totalNumFrames = 0;
 
 let gpuCompute;
 let velocityVariable;
@@ -132,15 +134,11 @@ async function init() {
 	renderer = new THREE.WebGLRenderer({ powerPreference: "high-performance" });
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth, window.innerHeight );
+	container.style.opacity = 0;
 	container.appendChild( renderer.domElement );
 
 	// degrade number of particles based on detected GPU capabilities
-	const { tier } = await gpuTier;
-	if(tier < 3) {
-		WIDTH = 512;
-	}
-
-	initComputeRenderer();
+	const targetFps = (await gpuTier).fps;
 
 	// stats = new Stats();
 	// container.appendChild( stats.dom );
@@ -149,15 +147,49 @@ async function init() {
 	window.addEventListener( 'pointermove', onPointerMove );
 	window.addEventListener( 'resize', onWindowResize );
 
-	initBirds();
+	initComputeRenderer();
+	initBirds(particleTexWidth);
 	initBox();
 	animate();
+
+	let lastFPS;
+	// keep incrementing count while fps within 20% of target fps
+	do {
+		scene.remove( scene.getObjectByName('birds') );
+		initComputeRenderer();
+		initBirds(particleTexWidth);
+
+		lastFPS = await profileAnimation();
+		particleTexWidth *= 2;
+	} while((lastFPS > targetFps * 0.80) && (particleTexWidth <= PARTICLE_MAX_WIDTH));
+
+	particleTexWidth /= 2;
+	if(particleTexWidth !== PARTICLE_MAX_WIDTH) {
+		scene.remove( scene.getObjectByName('birds') );
+		initComputeRenderer();
+		initBirds(particleTexWidth);
+	}
+
+	container.style.transition = 'opacity 1s';
+	container.style.opacity = 1;
+}
+
+async function profileAnimation() {
+	const PROFILE_TIME_IN_SECS = 0.2;
+
+	forceAnimationActive = true;
+	return new Promise((resolve) => {
+		totalNumFrames = 0;
+		setTimeout(() => {
+			forceAnimationActive = false;
+			resolve(totalNumFrames / PROFILE_TIME_IN_SECS);
+		}, PROFILE_TIME_IN_SECS * 1000);
+	})
 }
 
 function initComputeRenderer() {
-
-	gpuCompute = new GPUComputationRenderer( WIDTH, WIDTH, renderer );
-
+	if( gpuCompute ) gpuCompute.dispose();
+	gpuCompute = new GPUComputationRenderer( particleTexWidth, particleTexWidth, renderer );
 	if ( renderer.capabilities.isWebGL2 === false ) {
 
 		gpuCompute.setDataType( THREE.HalfFloatType );
@@ -170,9 +202,6 @@ function initComputeRenderer() {
 	fillVelocityTexture( dtVelocity );
 	dtPosition.magFilter = THREE.NearestFilter;
 	dtPosition.minFilter = THREE.NearestFilter;
-	//temp
-	window.dtPosition = dtPosition;
-	window.dtVelocity = dtVelocity;
 
 	velocityVariable = gpuCompute.addVariable( 'textureVelocity', document.getElementById( 'fragmentShaderVelocity' ).textContent, dtVelocity );
 	positionVariable = gpuCompute.addVariable( 'texturePosition', document.getElementById( 'fragmentShaderPosition' ).textContent, dtPosition );
@@ -206,9 +235,9 @@ function initComputeRenderer() {
 
 }
 
-function initBirds() {
+function initBirds(numBirds = 128) {
 
-	const geometry = new ParticleGeometry();
+	const geometry = new ParticleGeometry(numBirds);
 
 	// For Vertex and Fragment
 	birdUniforms = {
@@ -232,6 +261,7 @@ function initBirds() {
 	birdMesh.matrixAutoUpdate = false;
 	birdMesh.updateMatrix();
 
+	birdMesh.name = 'birds';
 	scene.add( birdMesh );
 }
 
@@ -322,13 +352,14 @@ function render() {
 
 	const now = performance.now();
 	let delta = ( now - last ) / 1000;
+	totalNumFrames++;
 
 	const deltaCap = 0.5;
 	if ( delta > deltaCap ) delta = deltaCap; // safety cap on large deltas
 	last = now;
 
 	// stop animation when tabbed out
-	if (document.hasFocus()) {
+	if (forceAnimationActive || document.hasFocus()) {
 		positionUniforms[ 'time' ].value = now;
 		positionUniforms[ 'delta' ].value = delta;
 		velocityUniforms[ 'time' ].value = now;
