@@ -1,10 +1,10 @@
 import * as THREE from 'three';
-import { getGPUTier } from 'detect-gpu';
 
 import { GPUComputationRenderer } from 'three/addons/misc/GPUComputationRenderer.js';
 
 /* TEXTURE WIDTH FOR SIMULATION */
 const PARTICLE_MAX_WIDTH = 1024;
+const PROFILE_TIME_IN_SECS = 0.2;
 
 // Custom Geometry - using 3 triangles each. No UVs, no normals currently.
 class ParticleGeometry extends THREE.InstancedBufferGeometry {
@@ -115,7 +115,6 @@ let birdUniforms;
 init();
 
 async function init() {
-	const gpuTier = getGPUTier();
 	container = document.getElementById('animation-container');
 
 	// set camera to look down on a vertex of the cube
@@ -137,9 +136,6 @@ async function init() {
 	renderer.domElement.style.opacity = 0;
 	container.appendChild( renderer.domElement );
 
-	// degrade number of particles based on detected GPU capabilities
-	const targetFps = (await gpuTier).fps;
-
 	// stats = new Stats();
 	// container.appendChild( stats.dom );
 
@@ -152,6 +148,7 @@ async function init() {
 	initBox();
 	animate();
 
+	const baselineFps = await getBaselineFps();
 	let lastFPS;
 	// keep incrementing count while fps within 20% of target fps
 	do {
@@ -161,7 +158,7 @@ async function init() {
 
 		lastFPS = await profileAnimation();
 		particleTexWidth *= 2;
-	} while((lastFPS > targetFps * 0.80) && (particleTexWidth <= PARTICLE_MAX_WIDTH));
+	} while((lastFPS > baselineFps * 0.80) && (particleTexWidth <= PARTICLE_MAX_WIDTH));
 
 	particleTexWidth /= 2;
 	if(particleTexWidth !== PARTICLE_MAX_WIDTH) {
@@ -174,9 +171,29 @@ async function init() {
 	renderer.domElement.style.opacity = 1;
 }
 
-async function profileAnimation() {
-	const PROFILE_TIME_IN_SECS = 0.2;
+function getBaselineFps() {
+	return new Promise((resolve) => {
+		let timeStart;
+		let framesRendered = 0;
+		let stopFramecount = false;
+		function incrementFrame() {
+			if(stopFramecount) return;
+			if(framesRendered === 0) {
+				timeStart = performance.now();
+			}
+			framesRendered++;
+			requestAnimationFrame( incrementFrame );
+		}
+		incrementFrame();
 
+		setTimeout(() => {
+			stopFramecount = true;
+			resolve(framesRendered / (performance.now() - timeStart) * 1000);
+		}, 200);
+	});
+}
+
+async function profileAnimation() {
 	forceAnimationActive = true;
 	return new Promise((resolve) => {
 		totalNumFrames = 0;
