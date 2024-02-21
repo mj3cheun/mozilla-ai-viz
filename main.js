@@ -134,7 +134,7 @@ async function init() {
 	renderer = new THREE.WebGLRenderer({ powerPreference: "high-performance" });
 	renderer.setPixelRatio( window.devicePixelRatio );
 	renderer.setSize( window.innerWidth, window.innerHeight );
-	container.style.opacity = 0;
+	renderer.domElement.style.opacity = 0;
 	container.appendChild( renderer.domElement );
 
 	// degrade number of particles based on detected GPU capabilities
@@ -170,8 +170,8 @@ async function init() {
 		initBirds(particleTexWidth);
 	}
 
-	container.style.transition = 'opacity 1s';
-	container.style.opacity = 1;
+	renderer.domElement.style.transition = 'opacity 1s';
+	renderer.domElement.style.opacity = 1;
 }
 
 async function profileAnimation() {
